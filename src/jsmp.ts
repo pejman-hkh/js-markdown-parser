@@ -124,14 +124,23 @@ export class parseMarkdown {
           enode.type = "li"
           break
         }
-   
+
         if (parent.type?.match(/h[1-6]+/ig)) {
           enode.type = parent.type
           break
         }
 
-
-        if (next?.match(/[0-9]+/)) {
+        if (next == '-') {
+          this.i++
+          const next = this.text[this.i]
+          if (next == ' ') {
+            this.i++
+            node.attrs = { type: "ul" }
+            this.parseTag({ node, type: "li" })
+          } else {
+            node.type = 'br'
+          }
+        } else if (next?.match(/[0-9]+/)) {
 
           while (isNumeric(next)) {
             this.i++
@@ -354,10 +363,10 @@ export class parseMarkdown {
         } else if (node?.type == 'li') {
           if (!liStart) {
             liStart = true
-            if (node?.attrs?.type == 'ol') {
-              listType = "ol"
-              html += `<ol>`
-            }
+            //if (node?.attrs?.type == 'ol') {
+            listType = node?.attrs?.type
+            html += `<` + node?.attrs?.type + `>`
+            //}
           }
 
           html += `<li>` + content + `</li>`;
