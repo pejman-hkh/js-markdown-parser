@@ -1,8 +1,7 @@
 import { parseMarkdown } from "./jsmp"
 
-const parser = new parseMarkdown(`## h2 *italic*
-  _this_ is **easy** to \`use\`.
-  ~~test~~
+const parser = new parseMarkdown(`
+[clear everything as **b**](https://www.google.com) test
   `)
 
 const doc = parser.parse()

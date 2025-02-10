@@ -3,6 +3,7 @@ type NodeType = {
   text?: string,
   children?: Array<NodeType>
   parent?: NodeType
+  attrs?: any
 }
 
 export class parseMarkdown {
@@ -21,7 +22,7 @@ export class parseMarkdown {
     while (this.i < this.len) {
       const tok = this.text[this.i]
 
-      if (tok == '*' || tok == '_' || tok == '`' || tok == '~' || tok == '>' || tok == "\n" || tok == "\n" || tok == '#') {
+      if (tok == '*' || tok == '_' || tok == '`' || tok == '~' || tok == '>' || tok == "\n" || tok == "\n" || tok == '#' || tok == '[' || tok == ']' || tok == ')') {
         break
       }
 
@@ -60,6 +61,7 @@ export class parseMarkdown {
   }
 
   parseTag({ node, type }: { node: NodeType, type: string }) {
+
     node.type = type
 
     const enode: NodeType = {}
@@ -83,6 +85,7 @@ export class parseMarkdown {
     while (this.i < this.len) {
       const tok = this.text[this.i]
       const node: NodeType = {}
+      let tempNode: NodeType = {}
 
       if (tok == '`') {
 
@@ -117,6 +120,47 @@ export class parseMarkdown {
         }
 
         node.type = 'br'
+      } else if (tok == ')') {
+        this.i++
+        if (parent.type == "link") {
+          enode.type = "link"
+          break
+        }
+
+        nodes.push({ type: 'text', text: ')' })
+
+      } else if (tok == ']') {
+        this.i++
+        if (parent.type == "a") {
+          enode.type = "a"
+          break
+        }
+
+        nodes.push({ type: 'text', text: ']' })
+      } else if (tok == '[') {
+        this.i++
+        node.attrs = { href: "#" }
+        this.parseTag({ node, type: "a" })
+
+        if (node.type == 'a') {
+
+          if (this.text[this.i] == '(') {
+            this.i++
+
+            this.parseTag({ node: tempNode, type: "link" })
+
+            if (tempNode?.type == 'link') {
+              node.attrs = { href: tempNode?.children?.[0]?.text }
+              tempNode = {}
+            } else {
+              if (tempNode?.children) {
+                tempNode?.children.unshift({ type: 'text', text: '(' })
+              }
+            }
+          }
+        } else {
+          nodes.push({ type: 'text', text: '[' })
+        }
       } else if (tok == '>') {
         this.i++
         const next = this.text[this.i]
@@ -223,6 +267,12 @@ export class parseMarkdown {
         this.parseContent({ node })
       }
       nodes.push(node)
+
+      if (tempNode?.children && tempNode?.children?.length > 0) {
+        tempNode?.children?.map((n: NodeType) => {
+          nodes.push(n)
+        })
+      }
     }
 
     return nodes
@@ -232,6 +282,16 @@ export class parseMarkdown {
     const document: NodeType = { type: "document" }
     document.children = this.getChildren({ parent: document, enode: document })
     return document
+  }
+
+  makeAttrsText(attrs: any) {
+    let ret = ''
+
+    for (const key in attrs) {
+      const value = attrs[key]
+      ret += ' ' + key + '="' + value + '"'
+    }
+    return ret
   }
 
   getHtml(node: NodeType) {
@@ -253,7 +313,7 @@ export class parseMarkdown {
         } else if (node?.type == 'br') {
           html += '<br />'
         } else {
-          html += '<' + node?.type + '>' + content + '</' + node?.type + '>'
+          html += '<' + node?.type + '' + this.makeAttrsText(node?.attrs) + '>' + content + '</' + node?.type + '>'
         }
       }
     })
