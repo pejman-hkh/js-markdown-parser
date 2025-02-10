@@ -10,17 +10,25 @@ const parser = new parseMarkdown(`
 ##### H5
 ###### H6
 
-1. list with number
+#Not H1
+
+12. list with number
 2. list with number
 
-That's it.  Pretty simple.  There's also a drop-down option above to switch between various views:
+Text sample
 
 - **bold:**  list
 - **bold:**  list [link] ***bold italic***
 
 > blockquote
 
-sample text
+This is \`code\` sample
+
+\`\`\`go
+pre sample
+\`\`\`
+
+Sample text
 [link](https://www.telegram.org)
 `)
 
