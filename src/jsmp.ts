@@ -216,7 +216,7 @@ export class parseMarkdown {
         let type = "h1"
         let text = '#'
 
-        for (let i = 2; i < 6; i++) {
+        for (let i = 2; i < 7; i++) {
           if (next == '#') {
             this.i++
             next = this.text[this.i]
@@ -363,10 +363,8 @@ export class parseMarkdown {
         } else if (node?.type == 'li') {
           if (!liStart) {
             liStart = true
-            //if (node?.attrs?.type == 'ol') {
             listType = node?.attrs?.type
             html += `<` + node?.attrs?.type + `>`
-            //}
           }
 
           html += `<li>` + content + `</li>`;
