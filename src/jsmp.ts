@@ -98,10 +98,15 @@ export class parseMarkdown {
         if (next == '`' && this.text[this.i + 1] == '`') {
           this.i += 2
           const code = this.getUntil('```')
-          node.type = 'code'
+          node.type = 'pre'
           node.text = code
 
           this.i += 3
+
+          if (this.text[this.i] == "\n") {
+            this.i++
+          }
+          
         } else {
           if (parent.type == "code") {
             enode.type = "code"
@@ -120,7 +125,8 @@ export class parseMarkdown {
         }
 
         if (parent.type == "li") {
-          this.i--
+          if (next != "\n")
+            this.i--
           enode.type = "li"
           break
         }
@@ -142,14 +148,17 @@ export class parseMarkdown {
           }
         } else if (next?.match(/[0-9]+/)) {
 
-          while (isNumeric(next)) {
+          let start = next
+          while (this.i < this.len && isNumeric(next)) {
             this.i++
             next = this.text[this.i]
+            if (next != '.')
+              start += next
           }
           this.i--
-          if (this.text[this.i + 1] == '.') {
+          if (this.text[this.i + 1] == '.' && this.text[this.i + 2] == ' ') {
             this.i += 2
-            node.attrs = { type: "ol" }
+            node.attrs = { type: "ol", start: start }
             this.parseTag({ node, type: "li" })
 
           } else {
@@ -364,7 +373,7 @@ export class parseMarkdown {
           if (!liStart) {
             liStart = true
             listType = node?.attrs?.type
-            html += `<` + node?.attrs?.type + `>`
+            html += `<` + node?.attrs?.type + `` + (node?.attrs?.type == 'ol' ? ' start="' + node?.attrs?.start + '"' : "") + `>`
           }
 
           html += `<li>` + content + `</li>`;
