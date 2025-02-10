@@ -15,6 +15,7 @@ const parser = new parseMarkdown(`
 12. list with number
 2. list with number
 
+\` *code* **bold** \`
 Text sample
 
 - **bold:**  list
