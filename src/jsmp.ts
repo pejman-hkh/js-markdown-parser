@@ -122,6 +122,16 @@ export class parseMarkdown {
 
           this.parseTag({ node, type: "text1" })
         }
+      } else if (tok == '#') {
+        this.i++
+        const next = this.text[this.i]
+        if (next == ' ') {
+          this.i++
+          this.parseTag({ node, type: "h1" })
+        } else {
+          nodes.push({ type: 'text', text: '#' })
+          continue
+        }
 
       } else if (tok == '~') {
         this.i++
