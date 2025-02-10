@@ -235,7 +235,7 @@ export class parseMarkdown {
           this.parseTag({ node, type: "blockquote" })
         } else {
 
-          this.parseTag({ node, type: "text1" })
+          this.parseTag({ node, type: "text1", tempNode, pre: ">" })
         }
       } else if (tok == '#') {
         this.i++
@@ -415,7 +415,6 @@ export class parseMarkdown {
 }
 
 export const markdownParser = (text: string) => {
-
   const parser = new parseMarkdown(text)
   const doc = parser.parse()
   return doc
