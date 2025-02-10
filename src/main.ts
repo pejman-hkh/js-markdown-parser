@@ -3,6 +3,10 @@ import { parseMarkdown } from "./jsmp"
 const parser = new parseMarkdown(`
 [link1] [link2]
 
+~~test
+
+**boldi **
+
 # H1
 ## H2
 ### H3
