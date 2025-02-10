@@ -111,8 +111,8 @@ export class parseMarkdown {
           break
         }
 
-        if (parent.type == "h1") {
-          enode.type = "h1"
+        if (parent.type?.match(/h[1-6]+/ig)) {
+          enode.type = parent.type
           break
         }
 
@@ -129,12 +129,26 @@ export class parseMarkdown {
         }
       } else if (tok == '#') {
         this.i++
-        const next = this.text[this.i]
+        let next = this.text[this.i]
+        let type = "h1"
+        let text = '#'
+
+        for (let i = 2; i < 6; i++) {
+          if (next == '#') {
+            this.i++
+            next = this.text[this.i]
+            type = "h" + i
+            text += '#'
+          } else {
+            break
+          }
+        }
+
         if (next == ' ') {
           this.i++
-          this.parseTag({ node, type: "h1" })
+          this.parseTag({ node, type: type })
         } else {
-          nodes.push({ type: 'text', text: '#' })
+          nodes.push({ type: 'text', text: text })
           continue
         }
 
@@ -171,38 +185,38 @@ export class parseMarkdown {
 
           } else {
 
-            if (parent.type == "bold") {
-              enode.type = "bold"
+            if (parent.type == "b") {
+              enode.type = "b"
               break
             }
 
-            this.parseTag({ node, type: "bold" })
+            this.parseTag({ node, type: "b" })
           }
         } else {
-          if (parent.type == "italic") {
-            enode.type = "italic"
+          if (parent.type == "i") {
+            enode.type = "i"
             break
           }
 
-          this.parseTag({ node, type: "italic" })
+          this.parseTag({ node, type: "i" })
         }
       } else if (tok == '_') {
         this.i++
         const next = this.text[this.i]
         if (next == '_') {
           this.i++
-          if (parent.type == "bold") {
-            enode.type = "bold"
+          if (parent.type == "b") {
+            enode.type = "b"
             break
           }
 
-          this.parseTag({ node, type: "bold" })
+          this.parseTag({ node, type: "b" })
         } else {
-          if (parent.type == "italic") {
-            enode.type = "italic"
+          if (parent.type == "i") {
+            enode.type = "i"
             break
           }
-          this.parseTag({ node, type: "italic" })
+          this.parseTag({ node, type: "i" })
         }
 
       } else {
@@ -234,26 +248,12 @@ export class parseMarkdown {
             content = this.getHtml(node)
           }
         }
-        if (node?.type == 'bold') {
-          html += '<b>' + content + '</b>'
-        } else if (node?.type == 'italic') {
-          html += '<i>' + content + '</i>'
+        if (node?.type == 'bolditalic') {
+          html += '<b><i>' + content + '</i></b>'
         } else if (node?.type == 'br') {
           html += '<br />'
-        } else if (node?.type == 'pre') {
-          html += '<pre>' + content + '</pre>'
-        } else if (node?.type == 'code') {
-          html += '<code>' + content + '</code>'
-        } else if (node?.type == 'del') {
-          html += '<del>' + content + '</del>'
-        } else if (node?.type == 'h1') {
-          html += '<h1>' + content + '</h1>'
-        } else if (node?.type == 'blockquote') {
-          html += '<blockquote>' + content + '</blockquote>'
-        } else if (node?.type == 'bolditalic') {
-          html += '<b><i>' + content + '</i></b>'
         } else {
-          html += '' + content + ''
+          html += '<' + node?.type + '>' + content + '</' + node?.type + '>'
         }
       }
     })
