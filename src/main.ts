@@ -1,6 +1,6 @@
 import { parseMarkdown } from "./jsmp"
 
-const parser = new parseMarkdown(`# h1 *italic*
+const parser = new parseMarkdown(`## h2 *italic*
   _this_ is **easy** to \`use\`.
   ~~test~~
   `)
