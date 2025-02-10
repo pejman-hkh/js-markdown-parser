@@ -235,6 +235,8 @@ export class parseMarkdown {
           html += '<code>' + content + '</code>'
         } else if (node?.type == 'del') {
           html += '<del>' + content + '</del>'
+        } else if (node?.type == 'h1') {
+          html += '<h1>' + content + '</h1>'
         } else if (node?.type == 'blockquote') {
           html += '<blockquote>' + content + '</blockquote>'
         } else if (node?.type == 'bolditalic') {
