@@ -33,7 +33,7 @@ export class parseMarkdown {
     while (this.i < this.len) {
       const tok = this.text[this.i]
 
-      if (tok == '*' || tok == '_' || tok == '`' || tok == '~' || tok == '>' || tok == "\n" || tok == "\n" || tok == '#' || tok == '[' || tok == ']' || tok == ')') {
+      if (tok == '*' || tok == '_' || tok == '`' || tok == '~' || tok == '>' || tok == "\n" || tok == '#' || tok == '[' || tok == ']' || tok == ')') {
         break
       }
 
@@ -135,6 +135,7 @@ export class parseMarkdown {
 
       } else if (tok == "\n") {
         this.i++
+
         let next = this.text[this.i]
         if (parent.type == "blockquote") {
           enode.type = "blockquote"
