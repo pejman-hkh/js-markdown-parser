@@ -14,8 +14,15 @@ export class parseMarkdown {
   text: string;
   len: number;
   i: number;
+  firstNewLine: boolean;
 
   constructor(text: string) {
+    this.firstNewLine = false
+    if (text[0] !== "\n") {
+      text = "\n" + text
+      this.firstNewLine = true
+    }
+
     this.text = text
     this.len = text.length
     this.i = 0
@@ -340,7 +347,11 @@ export class parseMarkdown {
 
   parse() {
     const document: NodeType = { type: "document" }
-    document.children = this.getChildren({ parent: document, enode: document })
+    const children = this.getChildren({ parent: document, enode: document })
+    if (this.firstNewLine) {
+      children.shift()
+    }
+    document.children = children
     return document
   }
 
@@ -403,6 +414,7 @@ export class parseMarkdown {
 }
 
 export const markdownParser = (text: string) => {
+
   const parser = new parseMarkdown(text)
   const doc = parser.parse()
   return doc
