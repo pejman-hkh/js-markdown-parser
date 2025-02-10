@@ -21,7 +21,7 @@ export class parseMarkdown {
     while (this.i < this.len) {
       const tok = this.text[this.i]
 
-      if (tok == '*' || tok == '_' || tok == '`' || tok == '~' || tok == '>' || tok == "\n") {
+      if (tok == '*' || tok == '_' || tok == '`' || tok == '~' || tok == '>' || tok == "\n" || tok == "\n" || tok == '#') {
         break
       }
 
@@ -111,6 +111,11 @@ export class parseMarkdown {
           break
         }
 
+        if (parent.type == "h1") {
+          enode.type = "h1"
+          break
+        }
+
         node.type = 'br'
       } else if (tok == '>') {
         this.i++
@@ -145,12 +150,8 @@ export class parseMarkdown {
 
           this.parseTag({ node, type: "del" })
         } else {
-          if (parent.type == "text1") {
-            enode.type = "text1"
-            break
-          }
-
-          this.parseTag({ node, type: "text1" })
+          nodes.push({ type: 'text', text: '~' })
+          continue
         }
       } else if (tok == '*') {
 
