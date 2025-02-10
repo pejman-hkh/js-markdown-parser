@@ -64,7 +64,7 @@ export class parseMarkdown {
     return buffer.join("")
   }
 
-  parseTag({ node, type }: { node: NodeType, type: string }) {
+  parseTag({ node, type, tempNode, pre }: { node: NodeType, type: string, tempNode?: NodeType, pre?: string }) {
 
     node.type = type
 
@@ -79,8 +79,18 @@ export class parseMarkdown {
       }
     }
 
-    node.type = 'text1'
-    node.children = nodes
+
+    if (pre && tempNode) {
+      node.type = 'text1'
+      node.text = pre
+      tempNode.type = 'text1'
+      tempNode.children = nodes
+
+    } else {
+      node.type = 'text1'
+      node.children = nodes
+    }
+
   }
 
   getChildren({ parent, enode }: { parent: NodeType, enode: NodeType }) {
@@ -106,14 +116,14 @@ export class parseMarkdown {
           if (this.text[this.i] == "\n") {
             this.i++
           }
-          
+
         } else {
           if (parent.type == "code") {
             enode.type = "code"
             break
           }
 
-          this.parseTag({ node, type: "code" })
+          this.parseTag({ node, type: "code", tempNode, pre: '`' })
         }
 
       } else if (tok == "\n") {
@@ -254,7 +264,7 @@ export class parseMarkdown {
             break
           }
 
-          this.parseTag({ node, type: "del" })
+          this.parseTag({ node, type: "del", tempNode, pre: '~~' })
         } else {
           nodes.push({ type: 'text', text: '~' })
           continue
@@ -273,7 +283,7 @@ export class parseMarkdown {
               break
             }
 
-            this.parseTag({ node, type: "bolditalic" })
+            this.parseTag({ node, type: "bolditalic", tempNode, pre: '***' })
 
           } else {
 
@@ -282,7 +292,7 @@ export class parseMarkdown {
               break
             }
 
-            this.parseTag({ node, type: "b" })
+            this.parseTag({ node, type: "b", tempNode, pre: '**' })
           }
         } else {
           if (parent.type == "i") {
@@ -290,7 +300,8 @@ export class parseMarkdown {
             break
           }
 
-          this.parseTag({ node, type: "i" })
+          this.parseTag({ node, type: "i", tempNode, pre: '*' })
+
         }
       } else if (tok == '_') {
         this.i++
@@ -314,6 +325,7 @@ export class parseMarkdown {
       } else {
         this.parseContent({ node })
       }
+
       nodes.push(node)
 
       if (tempNode?.children && tempNode?.children?.length > 0) {
