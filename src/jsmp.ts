@@ -6,6 +6,10 @@ type NodeType = {
   attrs?: any
 }
 
+const isNumeric = (val: string): boolean => {
+  return !isNaN(Number(val));
+}
+
 export class parseMarkdown {
   text: string;
   len: number;
@@ -90,7 +94,7 @@ export class parseMarkdown {
       if (tok == '`') {
 
         this.i++
-        const next = this.text[this.i]
+        let next = this.text[this.i]
         if (next == '`' && this.text[this.i + 1] == '`') {
           this.i += 2
           const code = this.getUntil('```')
@@ -109,17 +113,43 @@ export class parseMarkdown {
 
       } else if (tok == "\n") {
         this.i++
+        let next = this.text[this.i]
         if (parent.type == "blockquote") {
           enode.type = "blockquote"
           break
         }
 
+        if (parent.type == "li") {
+          this.i--
+          enode.type = "li"
+          break
+        }
+   
         if (parent.type?.match(/h[1-6]+/ig)) {
           enode.type = parent.type
           break
         }
 
-        node.type = 'br'
+
+        if (next?.match(/[0-9]+/)) {
+
+          while (isNumeric(next)) {
+            this.i++
+            next = this.text[this.i]
+          }
+          this.i--
+          if (this.text[this.i + 1] == '.') {
+            this.i += 2
+            node.attrs = { type: "ol" }
+            this.parseTag({ node, type: "li" })
+
+          } else {
+            node.type = 'br'
+          }
+        } else {
+          node.type = 'br'
+        }
+
       } else if (tok == ')') {
         this.i++
         if (parent.type == "link") {
@@ -296,6 +326,9 @@ export class parseMarkdown {
 
   getHtml(node: NodeType) {
     let html = ''
+    let liStart = false
+    let listType = "ol"
+
     node.children?.map((node: NodeType) => {
       if (node?.type == 'text') {
         html += node?.text
@@ -308,8 +341,28 @@ export class parseMarkdown {
             content = this.getHtml(node)
           }
         }
+
+        if (node?.type != 'li') {
+          if (liStart) {
+            liStart = false
+            html += `</` + listType + `>`
+          }
+        }
+
         if (node?.type == 'bolditalic') {
           html += '<b><i>' + content + '</i></b>'
+        } else if (node?.type == 'li') {
+          if (!liStart) {
+            liStart = true
+            if (node?.attrs?.type == 'ol') {
+              listType = "ol"
+              html += `<ol>`
+            }
+          }
+
+          html += `<li>` + content + `</li>`;
+        } else if (node?.type == 'text1') {
+          html += content
         } else if (node?.type == 'br') {
           html += '<br />'
         } else {
