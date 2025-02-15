@@ -33,7 +33,7 @@ export class parseMarkdown {
     while (this.i < this.len) {
       const tok = this.text[this.i]
 
-      if (tok == '*' || tok == '_' || tok == '`' || tok == '~' || tok == '>' || tok == "\n" || tok == '#' || tok == '[' || tok == ']' || tok == ')') {
+      if (tok == '*' || tok == '_' || tok == '`' || tok == '~' || tok == '>' || tok == "\n" || tok == '#' || tok == '[' || tok == ']' || tok == ')' || tok == '|') {
         break
       }
 
@@ -262,6 +262,21 @@ export class parseMarkdown {
           continue
         }
 
+      } else if (tok == '|') {
+        this.i++
+        const next = this.text[this.i]
+        if (next == '|') {
+          this.i++
+          if (parent.type == "spoiler") {
+            enode.type = "spoiler"
+            break
+          }
+
+          this.parseTag({ node, type: "spoiler", tempNode, pre: '||' })
+        } else {
+          nodes.push({ type: 'text', text: '|' })
+          continue
+        }
       } else if (tok == '~') {
         this.i++
         const next = this.text[this.i]

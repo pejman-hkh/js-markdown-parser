@@ -1,13 +1,25 @@
 import { parseMarkdown } from "./jsmp"
 
 const parser = new parseMarkdown(`
-[link1] [link2]
+test url https://www.google.com
 
+||spoiler||
+
+- test
+test 1. test
+test > test
+
+
+[link1] [link2]
+test\`\`\`code\`\`\`
 ~~test
 
-**boldi **
+**boldi 
 
-# H1
+test
+**
+
+test # H1
 ## H2
 ### H3
 #### H4
